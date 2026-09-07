@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShuttleAI — Badminton Chatbot</title>
+  <meta name="description" content="A simple badminton chatbot powered by Groq API. Ask anything about techniques, rules, equipment, and match strategy.">
+  <meta name="theme-color" content="#070d0b">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="assets/avatar.jpg">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Badminton Court Background -->
+  <div class="ambient-court-bg">
+    <div class="court-grid-pattern"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+  </div>
+
+  <div class="app-layout">
+    <!-- Header -->
+    <header class="top-nav">
+      <div class="brand-container">
+        <div class="avatar-ring">
+          <img src="assets/avatar.jpg" alt="ShuttleAI Logo" class="brand-avatar">
+          <span class="pulse-indicator" id="statusIndicator"></span>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title-row">
+            <h1 class="brand-name">Shuttle<span>AI</span></h1>
+            <span class="lpu-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+              </svg>
+              Groq ⚡ LPU
+            </span>
+          </div>
+          <p class="brand-tagline">Badminton AI Assistant</p>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <div class="env-status-badge" id="envStatusBadge">
+          <span class="dot" id="envDot"></span>
+          <span id="envStatusLabel">Checking .env...</span>
+        </div>
+        <button class="nav-btn nav-btn-ghost" id="btnClearChat" title="Clear Chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span>Clear</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Chat Workspace -->
+    <main class="chat-main" id="chatMain">
+      
+      <!-- Key Missing Alert Banner (if .env is empty) -->
+      <div class="env-missing-banner hidden" id="envMissingBanner">
+        <div class="banner-icon">⚠️</div>
+        <div class="banner-text">
+          <strong>Groq API Key Required:</strong>
+          Please open your <code>.env</code> file in the project folder and set your API key:
+          <code>GROQ_API_KEY=gsk_your_key_here</code>
+        </div>
+      </div>
+
+      <!-- Welcome Hero Screen -->
+      <section class="welcome-hero" id="welcomeHero">
+        <div class="hero-banner-card">
+          <div class="hero-banner-img-wrap">
+            <img src="assets/banner.jpg" alt="Badminton Arena" class="hero-banner-img">
+            <div class="hero-banner-overlay"></div>
+          </div>
+          <div class="hero-content">
+            <div class="hero-badge">
+              <span>🏸</span>
+              <span>Your Badminton Pro Assistant</span>
+            </div>
+            <h2 class="hero-title">Ask anything about <span class="gradient-text">Badminton</span></h2>
+            <p class="hero-subtitle">
+              Instant guidance on jump smash biomechanics, BWF rules, racket strings and tension, footwork routines, and doubles strategy.
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Starter Questions -->
+        <div class="starters-container">
+          <h3 class="starters-heading">Suggested Inquiries</h3>
+          <div class="prompt-grid">
+            <button class="prompt-card" data-prompt="How do I generate more power and steep angle on my forehand smash?">
+              <span class="prompt-icon">💥</span>
+              <div>
+                <strong>Forehand Smash Power</strong>
+                <p>Kinetic chain, shoulder rotation, and forearm pronation.</p>
+              </div>
+            </button>
+
+            <button class="prompt-card" data-prompt="Explain official BWF service rules: what is the 1.15m fixed service height rule and common service faults?">
+              <span class="prompt-icon">⚖️</span>
+              <div>
+                <strong>BWF Service Rules</strong>
+                <p>1.15m height rule, receiver faults, and court lines.</p>
+              </div>
+            </button>
+
+            <button class="prompt-card" data-prompt="What racket weight (3U vs 4U), balance (head-heavy vs even), and string tension should an intermediate player use?">
+              <span class="prompt-icon">⚙️</span>
+              <div>
+                <strong>Rackets & String Tension</strong>
+                <p>3U vs 4U, Yonex BG80 / Exbolt 65, and tension in lbs.</p>
+              </div>
+            </button>
+
+            <button class="prompt-card" data-prompt="How should partners rotate in badminton doubles when transitioning between attack (front-and-back) and defense (side-by-side)?">
+              <span class="prompt-icon">🎯</span>
+              <div>
+                <strong>Doubles Rotation Strategy</strong>
+                <p>Front-and-back attack vs side-by-side defensive wall.</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chat Messages Container -->
+      <div class="messages-container hidden" id="messagesContainer"></div>
+    </main>
+
+    <!-- Chat Input Bar -->
+    <footer class="input-dock">
+      <div class="dock-container">
+        <form class="chat-form" id="chatForm">
+          <div class="input-wrapper">
+            <textarea 
+              id="userInput" 
+              class="chat-textarea" 
+              placeholder="Ask anything about badminton... (Enter to send, Shift+Enter for new line)" 
+              rows="1"
+            ></textarea>
+            <button type="submit" class="send-btn" id="sendBtn" title="Send message">
+              <svg class="send-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+              <div class="spinner hidden" id="sendSpinner"></div>
+            </button>
+          </div>
+        </form>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
